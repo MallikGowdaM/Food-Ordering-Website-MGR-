@@ -57,12 +57,31 @@ WSGI_APPLICATION = 'food_ordering.wsgi.application'
 ASGI_APPLICATION = 'food_ordering.asgi.application'
 
 # Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+import shutil
+
+IS_VERCEL = 'VERCEL' in os.environ
+
+if IS_VERCEL:
+    db_path = '/tmp/db.sqlite3'
+    original_db = BASE_DIR / 'db.sqlite3'
+    if not os.path.exists(db_path) and os.path.exists(original_db):
+        try:
+            shutil.copy2(original_db, db_path)
+        except Exception as e:
+            pass
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': db_path,
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
