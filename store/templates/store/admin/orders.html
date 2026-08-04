@@ -1,0 +1,96 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<div style="display: flex; min-height: 80vh;">
+    <!-- Admin Sidebar -->
+    <aside style="width: 250px; background: var(--mgr-white); box-shadow: 2px 0 10px rgba(0,0,0,0.05); padding: 2rem 0;">
+        <h3 style="padding: 0 1.5rem; margin-bottom: 2rem; color: var(--mgr-gray-dark);">Admin Panel</h3>
+        <ul style="display: flex; flex-direction: column;">
+            <li><a href="{% url 'admin_dashboard' %}" class="nav-item" style="display:block; padding: 1rem 1.5rem;">Dashboard</a></li>
+            <li><a href="{% url 'admin_food_list' %}" class="nav-item" style="display:block; padding: 1rem 1.5rem;">Food Items</a></li>
+            <li><a href="{% url 'admin_orders' %}" class="nav-item active" style="display:block; padding: 1rem 1.5rem; font-weight:600; color:var(--mgr-red); border-right: 4px solid var(--mgr-red); background: var(--mgr-red-bg);">Orders</a></li>
+            <li><a href="{% url 'admin_reviews' %}" class="nav-item" style="display:block; padding: 1rem 1.5rem;">Reviews</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <div style="flex-grow: 1; padding: 2rem; background: var(--mgr-gray-lightest);">
+        <h2 style="margin-bottom: 2rem; color: var(--mgr-dark);">Manage Orders</h2>
+
+        <div style="background: var(--mgr-white); padding: 1.5rem; border-radius: var(--mgr-radius); box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="text-align: left; border-bottom: 2px solid var(--mgr-gray-light); color: var(--mgr-gray-dark);">
+                        <th style="padding: 0.8rem 0;">Order #</th>
+                        <th>Customer</th>
+                        <th>Total</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr style="border-bottom: 1px solid var(--mgr-gray-light);">
+                        <td style="padding: 0.8rem 0; font-weight: 600; color: var(--mgr-red);">{{ order.order_number }}</td>
+                        <td>{{ order.customer_name }}<br><small style="color:var(--mgr-gray-dark);">{{ order.phone }}</small></td>
+                        <td style="font-weight:600;">₹{{ order.total_amount }}</td>
+                        <td>
+                            <span style="text-transform: uppercase;">{{ order.payment_method }}</span>
+                            <br>
+                            {% if order.payment_status %}
+                                <small style="color:#4CAF50; font-weight:600;">Paid</small>
+                            {% else %}
+                                <small style="color:var(--mgr-red); font-weight:600;">Pending</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <select class="form-control" style="padding: 0.3rem; font-size: 0.85rem; width: 160px;" onchange="updateStatus('{{ order.id }}', this.value)">
+                                <option value="pending" {% if order.order_status == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="confirmed" {% if order.order_status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                                <option value="preparing" {% if order.order_status == 'preparing' %}selected{% endif %}>Preparing</option>
+                                <option value="out_for_delivery" {% if order.order_status == 'out_for_delivery' %}selected{% endif %}>Out for Delivery</option>
+                                <option value="delivered" {% if order.order_status == 'delivered' %}selected{% endif %}>Delivered</option>
+                                <option value="cancelled" {% if order.order_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                        </td>
+                        <td>
+                            <a href="{% url 'admin_order_detail' order.id %}" class="btn btn-outline" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; text-decoration: none;">View</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="padding: 2rem; text-align: center; color: var(--mgr-gray-dark);">No customer orders found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateStatus(orderId, newStatus) {
+    fetch(`/api/order/${orderId}/status/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ status: newStatus })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.status === 'success') {
+            showToast('Order status updated successfully!', 'success');
+        } else {
+            showToast(data.message || 'Error updating status', 'error');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        showToast('Something went wrong', 'error');
+    });
+}
+</script>
+{% endblock %}

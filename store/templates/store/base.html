@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mari Gold Restaurant{% endblock %}</title>
+    
+    {% load static %}
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'store/css/mgr_theme.css' %}">
+    
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token }}">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <a href="{% url 'home' %}" class="nav-brand">
+            <h1>MGR</h1>
+            <span>Mari Gold Restaurant</span>
+        </a>
+        
+        <ul class="nav-links" id="navLinks">
+            <li><a href="{% url 'home' %}" class="nav-item">Home</a></li>
+            <li><a href="{% url 'menu' %}" class="nav-item">Menu</a></li>
+            <li>
+                <a href="{% url 'cart' %}" class="nav-item cart-icon-wrapper">
+                    Cart
+                    <span class="cart-badge" id="cartBadge">0</span>
+                </a>
+            </li>
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'order_history' %}" class="nav-item">My Orders</a></li>
+                <li><a href="#" class="nav-item" style="font-weight:600; color:var(--mgr-red);">Hi, {{ user.username }}</a></li>
+                {% if user.is_staff %}
+                    <li><a href="{% url 'admin_dashboard' %}" class="nav-item">Admin</a></li>
+                {% endif %}
+                <li><a href="{% url 'logout' %}" class="nav-item">Logout</a></li>
+            {% else %}
+                <li><a href="{% url 'login' %}" class="nav-item">Login / Register</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Django Messages -->
+    {% if messages %}
+    <div style="display:none;" id="django-messages">
+        {% for message in messages %}
+            <span data-type="{{ message.tags }}">{{ message }}</span>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h2 style="color: var(--mgr-red);">MGR</h2>
+                <p>Delicious food delivered to your doorstep.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul style="list-style: none; padding:0;">
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'menu' %}">Menu</a></li>
+                    <li><a href="{% url 'cart' %}">Cart</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <p>123 Food Street, Tasty City</p>
+                <p>Phone: +91 9876543210</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2024 Mari Gold Restaurant. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Auth State for JS -->
+    <script>
+        const IS_AUTHENTICATED = {{ user.is_authenticated|yesno:"true,false" }};
+        const LOGIN_URL = "{% url 'login' %}";
+    </script>
+
+    <!-- Scripts -->
+    <script src="{% static 'store/js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,71 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block content %}
+<div style="padding: 2rem 5%;">
+    <h1 style="color: var(--mgr-red); margin-bottom: 1.5rem; text-align: center;">Our Menu</h1>
+
+    <!-- Search and Filters -->
+    <div style="margin-bottom: 2rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between;">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search delicious food..." style="max-width: 400px;">
+        
+        <div style="display:flex; gap:1rem;">
+            <button class="btn btn-outline" id="filterVeg" onclick="toggleVegFilter('veg')">Veg</button>
+            <button class="btn btn-outline" id="filterNonVeg" onclick="toggleVegFilter('non-veg')">Non-Veg</button>
+        </div>
+    </div>
+
+    <!-- Category Pills -->
+    <div class="category-filter" style="margin-bottom: 2rem; padding: 0;">
+        <a href="{% url 'menu' %}" class="cat-pill {% if not current_category %}active{% endif %}">All</a>
+        {% for cat in categories %}
+            <a href="{% url 'menu' %}?category={{ cat.slug }}" class="cat-pill {% if current_category.slug == cat.slug %}active{% endif %}">{{ cat.name }}</a>
+        {% endfor %}
+    </div>
+
+    {% if subcategories %}
+    <div class="category-filter" style="margin-bottom: 2rem; padding: 0;">
+        {% for subcat in subcategories %}
+            <a href="{% url 'menu' %}?category={{ current_category.slug }}&subcategory={{ subcat.slug }}" class="cat-pill {% if current_subcategory.slug == subcat.slug %}active{% endif %}" style="font-size:0.9rem;">{{ subcat.name }}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Food Grid -->
+    <div class="food-grid" id="menuGrid" style="padding: 0;">
+        {% for item in food_items %}
+        <div class="food-card" data-name="{{ item.name|lower }}" data-veg="{{ item.is_veg|yesno:'veg,non-veg' }}">
+            <div class="food-img-wrap">
+                <span class="food-badge">
+                    <span class="veg-dot {% if item.is_veg %}veg{% else %}non-veg{% endif %}"></span>
+                </span>
+                {% if item.image %}
+                    <img src="{{ item.image }}" alt="{{ item.name }}" class="food-img" onerror="this.onerror=null;this.src='https://placehold.co/400x300/D32F2F/FFFFFF?text={{ item.name|urlencode }}'">
+                {% else %}
+                    <img src="https://placehold.co/400x300/D32F2F/FFFFFF?text={{ item.name|urlencode }}" alt="{{ item.name }}" class="food-img">
+                {% endif %}
+            </div>
+            <div class="food-content">
+                <h3 class="food-name">{{ item.name }}</h3>
+                <p class="food-desc">{{ item.description }}</p>
+                
+                <div style="display:flex; justify-content:space-between; margin-bottom:1rem; font-size:0.85rem; color:var(--mgr-gray-dark);">
+                    <span><i class="time-icon">⏱️</i> {{ item.prep_time|default:"20" }} mins</span>
+                </div>
+
+                <div class="food-footer">
+                    <span class="food-price">₹{{ item.price }}</span>
+                    <button class="add-to-cart-btn" onclick="addToCart('{{ item.id }}', '{{ item.name|escapejs }}', {{ item.price }}, '{% if item.image %}{{ item.image }}{% else %}https://placehold.co/400x300/D32F2F/FFFFFF?text={{ item.name|urlencode }}{% endif %}', {{ item.is_veg|yesno:'true,false' }})">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+            <p style="text-align:center; width:100%; grid-column: 1 / -1; padding: 2rem;">No items found in this category.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'store/js/menu.js' %}"></script>
+{% endblock %}

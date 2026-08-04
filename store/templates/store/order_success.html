@@ -1,0 +1,105 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 4rem auto; text-align: center; padding: 2rem; background: var(--mgr-white); border-radius: var(--mgr-radius); box-shadow: var(--mgr-shadow);">
+    
+    <div style="width: 80px; height: 80px; background: var(--mgr-red-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--mgr-red)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 6L9 17l-5-5"/>
+        </svg>
+    </div>
+
+    <h1 style="color: var(--mgr-red); margin-bottom: 0.5rem;">Order Placed Successfully!</h1>
+    <p style="color: var(--mgr-gray-dark); margin-bottom: 2rem;">Thank you for your order. We are preparing it now.</p>
+    
+    <div style="background: var(--mgr-gray-lightest); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; text-align: left;">
+        <p style="margin-bottom: 0.5rem;"><strong>Order Number:</strong> <span style="color:var(--mgr-red);">{{ order.order_number }}</span></p>
+        <p style="margin-bottom: 0.5rem;"><strong>Total Amount:</strong> ₹{{ order.total_amount }}</p>
+        <p><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</p>
+    </div>
+
+    <!-- Review Section -->
+    <div style="margin-bottom: 2rem; padding-top: 1rem; border-top: 1px solid var(--mgr-gray-light);">
+        <h3 style="margin-bottom: 1rem;">Rate your experience</h3>
+        <div class="rating-stars" id="interactiveStars" style="justify-content: center; font-size: 2rem; margin-bottom: 1rem;">
+            <span class="star interactive" data-val="1">★</span>
+            <span class="star interactive" data-val="2">★</span>
+            <span class="star interactive" data-val="3">★</span>
+            <span class="star interactive" data-val="4">★</span>
+            <span class="star interactive" data-val="5">★</span>
+        </div>
+        <textarea id="reviewComment" class="form-control" rows="2" placeholder="Tell us about your food..." style="margin-bottom: 1rem;"></textarea>
+        <button class="btn btn-outline" id="submitReviewBtn" onclick="submitReview()">Submit Review</button>
+    </div>
+
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+        <a href="{% url 'order_status' order.order_number %}" class="btn btn-primary">Track Order</a>
+        <a href="{% url 'home' %}" class="btn btn-outline">Back to Home</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Clear cart on success
+    localStorage.removeItem('mgr_cart');
+    if (typeof updateCartBadge === 'function') {
+        updateCartBadge();
+    }
+    
+    // Star rating logic
+    const stars = document.querySelectorAll('.star.interactive');
+    let currentRating = 0;
+    
+    stars.forEach(star => {
+        star.addEventListener('click', () => {
+            currentRating = parseInt(star.dataset.val);
+            stars.forEach(s => {
+                s.style.color = parseInt(s.dataset.val) <= currentRating ? '#FFC107' : 'var(--mgr-gray)';
+            });
+        });
+    });
+
+    function submitReview() {
+        if(currentRating === 0) {
+            showToast('Please select a rating', 'error');
+            return;
+        }
+        
+        const comment = document.getElementById('reviewComment').value;
+        const orderId = "{{ order.id }}";
+        
+        fetch("{% url 'api_submit_review' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({
+                order_id: orderId,
+                rating: currentRating,
+                comment: comment
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                showToast('Review submitted successfully! Redirecting...', 'success');
+                document.getElementById('submitReviewBtn').disabled = true;
+                document.getElementById('submitReviewBtn').textContent = 'Submitted';
+                document.getElementById('reviewComment').disabled = true;
+                setTimeout(() => {
+                    window.location.href = "{% url 'home' %}";
+                }, 1500);
+            } else {
+                showToast(data.message || 'Error submitting review', 'error');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            showToast('Something went wrong', 'error');
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}My Orders - Mari Gold Restaurant{% endblock %}
+
+{% block content %}
+<div style="padding: 3rem 5%; max-width: 1000px; margin: 0 auto; min-height: 70vh;">
+    <h1 style="color: var(--mgr-red); margin-bottom: 2rem; border-bottom: 2px solid var(--mgr-red); padding-bottom: 0.5rem;">My Order History</h1>
+    
+    {% if orders %}
+        <div style="background: var(--mgr-white); border-radius: var(--mgr-radius); box-shadow: var(--mgr-shadow); overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                    <tr style="background: var(--mgr-red); color: var(--mgr-white);">
+                        <th style="padding: 1rem;">Order Number</th>
+                        <th style="padding: 1rem;">Date</th>
+                        <th style="padding: 1rem;">Total Amount</th>
+                        <th style="padding: 1rem;">Payment Method</th>
+                        <th style="padding: 1rem;">Status</th>
+                        <th style="padding: 1rem;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr style="border-bottom: 1px solid var(--mgr-gray-light); transition: var(--mgr-transition);" onmouseover="this.style.background='var(--mgr-off-white)'" onmouseout="this.style.background='none'">
+                            <td style="padding: 1.2rem 1rem; font-weight: 600; color: var(--mgr-red);">{{ order.order_number }}</td>
+                            <td style="padding: 1.2rem 1rem; color: var(--mgr-gray-dark);">{{ order.created_at|date:"d M Y, h:i A" }}</td>
+                            <td style="padding: 1.2rem 1rem; font-weight: 600;">₹{{ order.total_amount }}</td>
+                            <td style="padding: 1.2rem 1rem; text-transform: uppercase;">{{ order.payment_method }}</td>
+                            <td style="padding: 1.2rem 1rem;">
+                                <span class="status-badge" style="
+                                    display: inline-block;
+                                    padding: 0.25rem 0.75rem;
+                                    border-radius: 50px;
+                                    font-size: 0.85rem;
+                                    font-weight: 600;
+                                    text-transform: capitalize;
+                                    {% if order.order_status == 'delivered' %}
+                                        background: #E8F5E9; color: #2E7D32;
+                                    {% elif order.order_status == 'cancelled' %}
+                                        background: #FFEBEE; color: #C62828;
+                                    {% elif order.order_status == 'pending' %}
+                                        background: #FFF3E0; color: #EF6C00;
+                                    {% else %}
+                                        background: #E3F2FD; color: #1565C0;
+                                    {% endif %}
+                                ">
+                                    {{ order.get_order_status_display }}
+                                </span>
+                            </td>
+                            <td style="padding: 1.2rem 1rem;">
+                                <a href="{% url 'order_status' order.order_number %}" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; text-decoration: none;">Track Order</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 4rem 2rem; background: var(--mgr-white); border-radius: var(--mgr-radius); box-shadow: var(--mgr-shadow);">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">🛍️</div>
+            <h3 style="margin-bottom: 1rem;">No orders placed yet</h3>
+            <p style="color: var(--mgr-gray-dark); margin-bottom: 2rem;">You haven't ordered any food yet. Explore our delicious menu!</p>
+            <a href="{% url 'menu' %}" class="btn btn-primary" style="text-decoration: none;">Order Food Now</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

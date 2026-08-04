@@ -1,0 +1,111 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 2rem auto; padding: 0 5%;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2 style="color: var(--mgr-red);">Order Status</h2>
+        <span style="background: var(--mgr-gray-light); padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600;">{{ order.order_number|default:"MGR-12345" }}</span>
+    </div>
+
+    <div style="background: var(--mgr-white); border-radius: var(--mgr-radius); padding: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 2rem;">
+        
+        <!-- Animated Timeline -->
+        <!-- Animated Timeline -->
+        <div class="timeline" id="orderTimeline" data-status="{{ order.order_status }}">
+            <div class="timeline-step {% if order.order_status in 'pending,confirmed,preparing,out_for_delivery,delivered' %}completed{% endif %}">
+                <div class="step-icon"></div>
+                <h4>Order Placed</h4>
+                <p style="font-size: 0.85rem; color: var(--mgr-gray-dark);">{{ order.created_at|date:"M d, h:i A" }}</p>
+            </div>
+            
+            <div class="timeline-step {% if order.order_status in 'confirmed,preparing,out_for_delivery,delivered' %}completed{% endif %}">
+                <div class="step-icon"></div>
+                <h4>Order Confirmed</h4>
+                <p style="font-size: 0.85rem; color: var(--mgr-gray-dark);">Restaurant accepted your order</p>
+            </div>
+            
+            <div class="timeline-step {% if order.order_status in 'preparing,out_for_delivery,delivered' %}completed{% endif %}">
+                <div class="step-icon"></div>
+                <h4>Preparing Food</h4>
+                <p style="font-size: 0.85rem; color: var(--mgr-gray-dark);">Your food is being prepared</p>
+            </div>
+            
+            <div class="timeline-step {% if order.order_status in 'out_for_delivery,delivered' %}completed{% endif %}">
+                <div class="step-icon"></div>
+                <h4>Out for Delivery</h4>
+                <p style="font-size: 0.85rem; color: var(--mgr-gray-dark);">Delivery partner is on the way</p>
+            </div>
+            
+            <div class="timeline-step {% if order.order_status == 'delivered' %}completed{% endif %}">
+                <div class="step-icon"></div>
+                <h4>Delivered</h4>
+                <p style="font-size: 0.85rem; color: var(--mgr-gray-dark);">Enjoy your meal!</p>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <div style="background: var(--mgr-white); padding: 1.5rem; border-radius: var(--mgr-radius); box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--mgr-gray-light); padding-bottom: 0.5rem;">Delivery Details</h3>
+            <p><strong>Name:</strong> {{ order.customer_name }}</p>
+            <p><strong>Phone:</strong> {{ order.phone }}</p>
+            <p><strong>Address:</strong> {{ order.address }}</p>
+        </div>
+
+        <div style="background: var(--mgr-white); padding: 1.5rem; border-radius: var(--mgr-radius); box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--mgr-gray-light); padding-bottom: 0.5rem;">Order Details</h3>
+            <ul style="margin-bottom: 1rem; list-style: none; padding: 0;">
+                {% for item in order.items.all %}
+                <li style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>{{ item.quantity }}x {{ item.food_name }}</span>
+                    <span>₹{{ item.subtotal }}</span>
+                </li>
+                {% empty %}
+                <li>No items found in this order.</li>
+                {% endfor %}
+            </ul>
+            <div style="border-top: 1px dashed var(--mgr-gray-light); padding-top: 1rem; font-weight: bold; display: flex; justify-content: space-between;">
+                <span>Total</span>
+                <span style="color: var(--mgr-red);">₹{{ order.total_amount }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animate progress line based on active step
+    document.addEventListener('DOMContentLoaded', () => {
+        const steps = document.querySelectorAll('.timeline-step');
+        let activeIndex = -1;
+        steps.forEach((step, index) => {
+            if(step.classList.contains('active') || step.classList.contains('completed')) {
+                activeIndex = index;
+            }
+        });
+        
+        if(activeIndex >= 0) {
+            const timeline = document.getElementById('orderTimeline');
+            const progress = document.createElement('div');
+            progress.className = 'timeline-progress';
+            const height = (activeIndex / (steps.length - 1)) * 100;
+            progress.style.height = `0%`;
+            timeline.appendChild(progress);
+            
+            setTimeout(() => {
+                progress.style.height = `${height}%`;
+            }, 100);
+        }
+
+        // Auto-refresh order status tracking every 10 seconds unless complete
+        const currentStatus = "{{ order.order_status }}";
+        if (currentStatus !== 'delivered' && currentStatus !== 'cancelled') {
+            setTimeout(() => {
+                window.location.reload();
+            }, 10000); // 10 seconds
+        }
+    });
+</script>
+{% endblock %}

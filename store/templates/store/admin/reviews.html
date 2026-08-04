@@ -1,0 +1,49 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<div style="display: flex; min-height: 80vh;">
+    <!-- Admin Sidebar -->
+    <aside style="width: 250px; background: var(--mgr-white); box-shadow: 2px 0 10px rgba(0,0,0,0.05); padding: 2rem 0;">
+        <h3 style="padding: 0 1.5rem; margin-bottom: 2rem; color: var(--mgr-gray-dark);">Admin Panel</h3>
+        <ul style="display: flex; flex-direction: column;">
+            <li><a href="{% url 'admin_dashboard' %}" class="nav-item" style="display:block; padding: 1rem 1.5rem;">Dashboard</a></li>
+            <li><a href="{% url 'admin_food_list' %}" class="nav-item" style="display:block; padding: 1rem 1.5rem;">Food Items</a></li>
+            <li><a href="{% url 'admin_orders' %}" class="nav-item" style="display:block; padding: 1rem 1.5rem;">Orders</a></li>
+            <li><a href="{% url 'admin_reviews' %}" class="nav-item active" style="display:block; padding: 1rem 1.5rem; font-weight:600; color:var(--mgr-red); border-right: 4px solid var(--mgr-red); background: var(--mgr-red-bg);">Reviews</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <div style="flex-grow: 1; padding: 2rem; background: var(--mgr-gray-lightest);">
+        <h2 style="margin-bottom: 2rem; color: var(--mgr-dark);">Customer Reviews</h2>
+
+        <div style="background: var(--mgr-white); padding: 1.5rem; border-radius: var(--mgr-radius); box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                {% for review in reviews %}
+                <div style="border-bottom: 1px solid var(--mgr-gray-light); padding-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <h4 style="margin: 0; color: var(--mgr-dark);">{{ review.user.username }}</h4>
+                        <span style="color: var(--mgr-gray-dark); font-size: 0.85rem;">{{ review.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="rating-stars" style="margin-bottom: 0.5rem; font-size: 1rem;">
+                        {% for i in '12345'|make_list %}
+                            {% if forloop.counter <= review.rating %}
+                                <span style="color: #FFC107;">★</span>
+                            {% else %}
+                                <span style="color: var(--mgr-gray-light);">★</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <p style="color: var(--mgr-gray-dark); margin: 0; font-style: italic;">"{{ review.comment }}"</p>
+                    <p style="margin-top: 0.5rem; font-size: 0.85rem;"><strong>Order:</strong> <a href="{% url 'admin_order_detail' review.order.id %}" style="color: var(--mgr-red); font-weight: 600;">{{ review.order.order_number }}</a></p>
+                </div>
+                {% empty %}
+                <div style="padding: 2rem; text-align: center; color: var(--mgr-gray-dark);">No customer reviews found.</div>
+                {% endfor %}
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

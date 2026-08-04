@@ -1,0 +1,39 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<div style="min-height: 70vh; display: flex; align-items: center; justify-content: center; padding: 2rem 5%;">
+    <div style="background: var(--mgr-white); padding: 3rem; border-radius: var(--mgr-radius); box-shadow: var(--mgr-shadow); width: 100%; max-width: 400px; text-align: center;">
+        
+        <div style="margin-bottom: 2rem;">
+            <h2 style="color: var(--mgr-red); font-size: 2rem; margin: 0; line-height: 1;">MGR</h2>
+            <span style="font-size: 0.8rem; color: var(--mgr-gray-dark); text-transform: uppercase; letter-spacing: 1px;">Welcome Back</span>
+        </div>
+
+        {% if error %}
+        <div style="background: #FFEBEE; border: 1px solid var(--mgr-red); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+            <p style="color: #B71C1C; font-size: 0.9rem; margin: 0;">⚠️ {{ error }}</p>
+        </div>
+        {% endif %}
+        
+        <form method="POST" action="{% url 'login' %}">
+            {% csrf_token %}
+            
+            <div class="form-group" style="text-align: left;">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" class="form-control" required placeholder="Enter username">
+            </div>
+            
+            <div class="form-group" style="text-align: left;">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" required placeholder="Enter password">
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.8rem; margin-top: 1rem;">Login</button>
+        </form>
+        
+        <p style="margin-top: 1.5rem; font-size: 0.9rem;">
+            Don't have an account? <a href="{% url 'register' %}" style="color: var(--mgr-red); font-weight: 500;">Register here</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

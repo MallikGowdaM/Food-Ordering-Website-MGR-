@@ -1,0 +1,85 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <h1>Welcome to Mari Gold Restaurant</h1>
+    <p>Delicious food delivered to your doorstep</p>
+    <a href="{% url 'menu' %}" class="btn btn-outline">Explore Menu</a>
+</section>
+
+<!-- Categories Section -->
+<section style="padding: 2rem 5%;">
+    <h2 style="text-align: center; margin-bottom: 2rem;">Browse by Category</h2>
+    <div class="category-filter">
+        {% for cat in categories %}
+            <a href="{% url 'menu' %}?category={{ cat.slug }}" class="cat-pill">{{ cat.name }}</a>
+        {% empty %}
+            <a href="{% url 'menu' %}" class="cat-pill">Starters</a>
+            <a href="{% url 'menu' %}" class="cat-pill">Main Course</a>
+            <a href="{% url 'menu' %}" class="cat-pill">Desserts</a>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Featured Dishes Section -->
+<section style="padding: 2rem 0; background: var(--mgr-white);">
+    <h2 style="text-align: center; margin-bottom: 2rem;">Featured Dishes</h2>
+    <div class="food-grid">
+        {% for item in featured_items %}
+        <div class="food-card">
+            <div class="food-img-wrap">
+                <span class="food-badge">
+                    <span class="veg-dot {% if item.is_veg %}veg{% else %}non-veg{% endif %}"></span>
+                    {% if item.is_veg %}Veg{% else %}Non-Veg{% endif %}
+                </span>
+                {% if item.image %}
+                    <img src="{{ item.image }}" alt="{{ item.name }}" class="food-img" onerror="this.onerror=null;this.src='https://placehold.co/400x300/D32F2F/FFFFFF?text={{ item.name|urlencode }}'">
+                {% else %}
+                    <img src="https://placehold.co/400x300/D32F2F/FFFFFF?text={{ item.name|urlencode }}" alt="{{ item.name }}" class="food-img">
+                {% endif %}
+            </div>
+            <div class="food-content">
+                <h3 class="food-name">{{ item.name }}</h3>
+                <p class="food-desc">{{ item.description|truncatewords:15 }}</p>
+                <div class="food-footer">
+                    <span class="food-price">₹{{ item.price }}</span>
+                    <button class="add-to-cart-btn" onclick="addToCart('{{ item.id }}', '{{ item.name }}', {{ item.price }}, '{% if item.image %}{{ item.image }}{% else %}https://placehold.co/400x300/D32F2F/FFFFFF?text={{ item.name|urlencode }}{% endif %}', {{ item.is_veg|yesno:'true,false' }})">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+            <p style="text-align:center; width:100%;">No featured items available.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Customer Reviews Section -->
+<section style="padding: 4rem 5%;">
+    <h2 style="text-align: center; margin-bottom: 2rem;">What Our Customers Say</h2>
+    <div style="display:flex; gap:2rem; overflow-x:auto; padding-bottom:1rem;">
+        {% for review in recent_reviews %}
+        <div style="min-width:300px; background:var(--mgr-white); padding:1.5rem; border-radius:var(--mgr-radius); box-shadow:var(--mgr-shadow);">
+            <div class="rating-stars" style="margin-bottom:0.5rem;">
+                {% for i in '12345'|make_list %}
+                    {% if forloop.counter <= review.rating %}
+                        <span>★</span>
+                    {% else %}
+                        <span style="color:var(--mgr-gray-light);">★</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <p style="font-style:italic; margin-bottom:1rem;">"{{ review.comment }}"</p>
+            <p style="font-weight:600; color:var(--mgr-red);">- {{ review.user.username }}</p>
+        </div>
+        {% empty %}
+            <p style="text-align:center; width:100%;">Be the first to leave a review!</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'store/js/menu.js' %}"></script>
+{% endblock %}

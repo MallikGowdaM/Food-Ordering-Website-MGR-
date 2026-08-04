@@ -1,0 +1,35 @@
+# Python / Django
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Django Database & Static Files
+db.sqlite3
+db.sqlite3-journal
+staticfiles/
+media/
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# Node / Vercel
+node_modules/
+.vercel

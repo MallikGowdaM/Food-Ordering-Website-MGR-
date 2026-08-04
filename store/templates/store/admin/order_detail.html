@@ -1,0 +1,100 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<div style="display: flex; min-height: 80vh;">
+    <!-- Admin Sidebar -->
+    <aside style="width: 250px; background: var(--mgr-white); box-shadow: 2px 0 10px rgba(0,0,0,0.05); padding: 2rem 0;">
+        <h3 style="padding: 0 1.5rem; margin-bottom: 2rem; color: var(--mgr-gray-dark);">Admin Panel</h3>
+        <ul style="display: flex; flex-direction: column;">
+            <li><a href="{% url 'admin_dashboard' %}" class="nav-item" style="display:block; padding: 1rem 1.5rem;">Dashboard</a></li>
+            <li><a href="{% url 'admin_food_list' %}" class="nav-item" style="display:block; padding: 1rem 1.5rem;">Food Items</a></li>
+            <li><a href="{% url 'admin_orders' %}" class="nav-item active" style="display:block; padding: 1rem 1.5rem; font-weight:600; color:var(--mgr-red); border-right: 4px solid var(--mgr-red); background: var(--mgr-red-bg);">Orders</a></li>
+            <li><a href="{% url 'admin_reviews' %}" class="nav-item" style="display:block; padding: 1rem 1.5rem;">Reviews</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <div style="flex-grow: 1; padding: 2rem; background: var(--mgr-gray-lightest);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2>Order Details: <span style="color:var(--mgr-red);">{{ order.order_number }}</span></h2>
+            <a href="{% url 'admin_orders' %}" class="btn btn-outline" style="text-decoration: none;">Back to Orders</a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+            
+            <div>
+                <!-- Items Table -->
+                <div style="background: var(--mgr-white); padding: 1.5rem; border-radius: var(--mgr-radius); box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 2rem;">
+                    <h3 style="margin-bottom: 1.5rem;">Items</h3>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="text-align: left; border-bottom: 2px solid var(--mgr-gray-light); color: var(--mgr-gray-dark);">
+                                <th style="padding: 0.8rem 0;">Item</th>
+                                <th>Price</th>
+                                <th>Qty</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr style="border-bottom: 1px solid var(--mgr-gray-light);">
+                                <td style="padding: 0.8rem 0; font-weight:600;">{{ item.food_name }}</td>
+                                <td>₹{{ item.price }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>₹{{ item.subtotal }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" style="text-align: right; padding: 1rem 1rem 0; font-weight: 500; color: var(--mgr-gray-dark);">Subtotal:</td>
+                                <td style="padding: 1rem 0 0; font-weight: 600;">₹{{ subtotal }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" style="text-align: right; padding: 0.5rem 1rem; font-weight: 500; color: var(--mgr-gray-dark);">Delivery Fee:</td>
+                                <td style="padding: 0.5rem 0; font-weight: 600;">{% if delivery > 0 %}₹{{ delivery }}{% else %}Free{% endif %}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" style="text-align: right; padding: 0.5rem 1rem; font-size: 1.2rem; font-weight: 700; color:var(--mgr-red);">Total:</td>
+                                <td style="padding: 0.5rem 0; font-size: 1.2rem; font-weight: 700; color:var(--mgr-red);">₹{{ order.total_amount }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <div>
+                <!-- Customer Info -->
+                <div style="background: var(--mgr-white); padding: 1.5rem; border-radius: var(--mgr-radius); box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 1.5rem;">
+                    <h3 style="margin-bottom: 1rem;">Customer Info</h3>
+                    <p><strong>Name:</strong> {{ order.customer_name }}</p>
+                    <p><strong>Phone:</strong> {{ order.phone }}</p>
+                    <p><strong>Email:</strong> {{ order.email|default:"-" }}</p>
+                    <p><strong>Address:</strong> {{ order.address }}, {{ order.city }} - {{ order.pincode }}</p>
+                    <p><strong>Special Instructions:</strong> {{ order.special_instructions|default:"None" }}</p>
+                </div>
+
+                <!-- Status Update -->
+                <div style="background: var(--mgr-white); padding: 1.5rem; border-radius: var(--mgr-radius); box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                    <h3 style="margin-bottom: 1rem;">Update Status</h3>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <select name="status" class="form-control" style="margin-bottom: 1rem;">
+                                <option value="pending" {% if order.order_status == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="confirmed" {% if order.order_status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                                <option value="preparing" {% if order.order_status == 'preparing' %}selected{% endif %}>Preparing</option>
+                                <option value="out_for_delivery" {% if order.order_status == 'out_for_delivery' %}selected{% endif %}>Out for Delivery</option>
+                                <option value="delivered" {% if order.order_status == 'delivered' %}selected{% endif %}>Delivered</option>
+                                <option value="cancelled" {% if order.order_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Update Status</button>
+                    </form>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

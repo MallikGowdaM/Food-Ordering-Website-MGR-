@@ -1,0 +1,58 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<div style="min-height: 70vh; display: flex; align-items: center; justify-content: center; padding: 2rem 5%;">
+    <div style="background: var(--mgr-white); padding: 3rem; border-radius: var(--mgr-radius); box-shadow: var(--mgr-shadow); width: 100%; max-width: 450px; text-align: center;">
+        
+        <div style="margin-bottom: 2rem;">
+            <h2 style="color: var(--mgr-red); font-size: 2rem; margin: 0; line-height: 1;">MGR</h2>
+            <span style="font-size: 0.8rem; color: var(--mgr-gray-dark); text-transform: uppercase; letter-spacing: 1px;">Create Account</span>
+        </div>
+
+        {% if form.errors %}
+        <div style="background: #FFEBEE; border: 1px solid var(--mgr-red); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; text-align: left;">
+            <p style="color: var(--mgr-red); font-weight: 600; margin-bottom: 0.5rem;">⚠️ Please fix the errors below:</p>
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <p style="color: #B71C1C; font-size: 0.85rem; margin: 0.2rem 0;">• {{ field.label }}: {{ error }}</p>
+                {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+                <p style="color: #B71C1C; font-size: 0.85rem; margin: 0.2rem 0;">• {{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <form method="POST" action="{% url 'register' %}">
+            {% csrf_token %}
+            
+            <div class="form-group" style="text-align: left;">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" class="form-control" required placeholder="Choose a username" value="{{ form.username.value|default:'' }}">
+            </div>
+            
+            <div class="form-group" style="text-align: left;">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" required placeholder="Enter your email" value="{{ form.email.value|default:'' }}">
+            </div>
+            
+            <div class="form-group" style="text-align: left;">
+                <label class="form-label">Password</label>
+                <input type="password" name="password1" class="form-control" required placeholder="Create a password">
+                <small style="color: var(--mgr-gray); font-size: 0.75rem;">At least 8 characters with letters and numbers</small>
+            </div>
+            
+            <div class="form-group" style="text-align: left;">
+                <label class="form-label">Confirm Password</label>
+                <input type="password" name="password2" class="form-control" required placeholder="Confirm your password">
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.8rem; margin-top: 1rem;">Register</button>
+        </form>
+        
+        <p style="margin-top: 1.5rem; font-size: 0.9rem;">
+            Already have an account? <a href="{% url 'login' %}" style="color: var(--mgr-red); font-weight: 500;">Login here</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

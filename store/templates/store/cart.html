@@ -1,0 +1,48 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="cart-container">
+    <div class="cart-items">
+        <h2 style="color: var(--mgr-red); margin-bottom: 1.5rem;">Your Cart</h2>
+        
+        <div id="emptyCartState" style="display: none; text-align: center; padding: 3rem 0;">
+            <div style="font-size: 4rem; color: var(--mgr-gray-light); margin-bottom: 1rem;">🛒</div>
+            <h3>Your cart is empty</h3>
+            <p style="color: var(--mgr-gray-dark); margin-bottom: 1.5rem;">Looks like you haven't added anything to your cart yet.</p>
+            <a href="{% url 'menu' %}" class="btn btn-primary">Browse Menu</a>
+        </div>
+
+        <div id="cartItemsList">
+            <!-- Items injected by JS -->
+        </div>
+    </div>
+
+    <div class="cart-summary">
+        <h3 style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--mgr-gray-light); padding-bottom: 0.5rem;">Order Summary</h3>
+        
+        <div class="summary-row">
+            <span>Subtotal</span>
+            <span id="cartSubtotal">₹0.00</span>
+        </div>
+        <div class="summary-row">
+            <span>Delivery Charge <br><small style="color:var(--mgr-gray-dark)">(Free above ₹500)</small></span>
+            <span id="cartDelivery">₹0.00</span>
+        </div>
+        <div class="summary-row summary-total">
+            <span>Total</span>
+            <span id="cartTotal">₹0.00</span>
+        </div>
+
+        <a href="{% url 'checkout' %}" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; padding: 1rem; font-size: 1.1rem;" id="checkoutBtn">Proceed to Checkout</a>
+        
+        <div style="text-align: center; margin-top: 1rem;">
+            <a href="{% url 'menu' %}" style="color: var(--mgr-red); font-weight: 500; font-size: 0.9rem;">Continue Shopping</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'store/js/cart.js' %}"></script>
+{% endblock %}
