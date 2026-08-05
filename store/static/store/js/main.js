@@ -78,6 +78,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Mobile menu toggle logic
+    const menuToggle = document.getElementById('menuToggle');
+    const navLinks = document.getElementById('navLinks');
+    if (menuToggle && navLinks) {
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            menuToggle.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
+        });
+    }
+
     // Scroll Animations using Intersection Observer
     const animatedElements = document.querySelectorAll('.food-card, .timeline-step');
     const observer = new IntersectionObserver((entries) => {
