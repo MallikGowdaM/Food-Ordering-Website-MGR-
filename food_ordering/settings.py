@@ -117,3 +117,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+# CSRF & Security settings for Vercel
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.vercel.app',
+    'https://food-ordering-website-mgr.vercel.app',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
