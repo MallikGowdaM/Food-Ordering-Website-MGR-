@@ -89,13 +89,13 @@
             </div>
         </div>
         <div class="footer-bottom">
-            &copy; 2024 Mari Gold Restaurant. All rights reserved.
+            &copy; 2026 Mallik Gowda M. All rights reserved.
         </div>
     </footer>
 
     <!-- Auth State for JS -->
     <script>
-        const IS_AUTHENTICATED = {{ user.is_authenticated|yesno:"true,false" }};
+        const IS_AUTHENTICATED = "{{ user.is_authenticated|yesno:'true,false' }}" === "true";
         const LOGIN_URL = "{% url 'login' %}";
     </script>
 
